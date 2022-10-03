@@ -13,6 +13,10 @@ class DataConfig(object):
     phonemes_path = f'resources/{language}/Phonemes.json'
     lexicon_path = f'resources/{language}/Lexicon.json'
 
+    lexicon_path_train = f'resources/{language}/Lexicon_train.json'
+    lexicon_path_valid = f'resources/{language}/Lexicon_valid.json'
+    lexicon_path_test = f'resources/{language}/Lexicon_test.json'
+
 
 class ModelConfig(object):
     with open(DataConfig.graphemes_path) as f:

@@ -30,6 +30,16 @@ class PersianLexicon(Dataset):
         return [0] + x + [1], [0] + y + [1]
 
 
+class PersianLexicon_p2g(PersianLexicon):
+    def __getitem__(self, index):
+        key, value = self.lexicon[index]
+
+        y = [self.g2idx[ch] for ch in key]
+        x = [self.p2idx[phn] for phn in value.split(' ') if phn != '']
+
+        return [0] + x + [1], [0] + y + [1]
+
+
 def collate_fn(batch):
     N = len(batch)
     x, y = zip(*batch)
