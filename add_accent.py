@@ -17,7 +17,7 @@ from tqdm import tqdm
 from pathlib import Path
 
 from test_g2p import G2P_eval
-from test_p2g_v2 import P2G_eval
+from test_p2g import P2G_eval
 
 
 def load_model(model_path, model):
@@ -65,8 +65,11 @@ class AccentAdder(object):
         else:
             p = self.g2p(g)
             p = '.'.join(p[:-1])
+        # p = self.g2p(g)
+        # p = '.'.join(p[:-1])
 
         p_accent, hacked = self.add_accent_p(p, accent)
+        # if accent=='de': print(p, p_accent)
         if not hacked:
             return g.lower()
         g_accent = self.p2g(p_accent)
@@ -91,6 +94,8 @@ class AccentAdder(object):
             if ph in confusions:
                 p[i] = confusions[ph]
                 hacked = True
+                if i>0 and p[i]=='V' and p[i-1]=='HH':
+                    p[i-1] = ''
         p = [ ph for ph in p if ph!='']
 
         if accent=='cn':
@@ -197,30 +202,43 @@ if __name__ == '__main__':
     encoder_model_path = f'models/g2p/{DataConfig.language}/{exp_name}/encoder_{ep_g2p}.pth'
     decoder_model_path = f'models/g2p/{DataConfig.language}/{exp_name}/decoder_{ep_g2p}.pth'
     g2p = G2P_eval(encoder_model_path, decoder_model_path)
+
+    # eps = [10, 15, 20, 25, 30, 35, 40, 46, 48, 55]
+    # eps = range(10, 30, 3)
+    eps = [20]
+    for i in eps:
+        ep_p2g = f'e{i:02d}'
+        print(ep_p2g)
     
-    encoder_model_path = f'models/p2g/{DataConfig.language}/{exp_name}/encoder_{ep_p2g}.pth'
-    decoder_model_path = f'models/p2g/{DataConfig.language}/{exp_name}/decoder_{ep_p2g}.pth'
-    p2g = P2G_eval(encoder_model_path, decoder_model_path)
+        encoder_model_path = f'models/p2g/{DataConfig.language}/{exp_name}/encoder_{ep_p2g}.pth'
+        decoder_model_path = f'models/p2g/{DataConfig.language}/{exp_name}/decoder_{ep_p2g}.pth'
+        p2g = P2G_eval(encoder_model_path, decoder_model_path)
 
-    acc_adder = AccentAdder(g2p, p2g)
-    data = {
-    'fr': ['The hero stopped the looting at the chip factory'],
-    'de':['Why are you so worried about the chadder cheese'],
-    'jp':['The rules are all about vegetables'],
-    'cn':['The lookbook is full of bright colors']
-    }
-    for accent, sentences in data.items():
-        print(accent)
-        s = 'What are the huge vegetables in the research lab'
-        s_accent = acc_adder.hack_sentence(s, accent=accent)
-        print(f'{s}\n{s_accent}')
+        acc_adder = AccentAdder(g2p, p2g)
 
-        for s in sentences:
-            s_accent = acc_adder.hack_sentence(s, accent=accent)
-            print(f'{s}\n{s_accent}')
+        # data = {
+        # 'fr': ['hero humour have house', 'chadder cheese rich reach research search', 'loot food mood goose', 'hit lit liquid slim'],
+        # 'de':['why what when where ware', 'chadder cheese rich reach research search']
+        # }
+
+        data = {
+        'fr': ['The humble hero had cheddar cheese for lunch'],
+        'de':['Why are rich people so worried about what to ware and when'],
+        'jp':['The rules are all about vegetables'],
+        'cn':['The lookbook is full of bright colors']
+        }
+        for accent, sentences in data.items():
+            # print(accent)
+            # s = 'What are the huge vegetables in the research lab'
+            # s_accent = acc_adder.hack_sentence(s, accent=accent)
+            # print(f'{s}\n{s_accent}')
+
+            for s in sentences:
+                s_accent = acc_adder.hack_sentence(s, accent=accent)
+                print(f'{s}\n{s_accent}')
 
     # print(len(acc_adder.dict), acc_adder.dict['MOLAND'])
-    import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
 
     acc_adder.eval(ds)
 

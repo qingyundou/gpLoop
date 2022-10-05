@@ -34,10 +34,10 @@ fi
 
 if [ $direction = p2g ]; then
 	if [ $mode = train ]; then
-		LANGUAGE=$lang python train_p2g_v2.py --config $config
+		LANGUAGE=$lang python train_p2g.py --config $config
 	fi
 	if [ $mode = test ]; then
-		LANGUAGE=$lang python test_p2g_v2.py --config $config --word P.IH.TH.AH.N
+		LANGUAGE=$lang python test_p2g.py --config $config --word P.IH.TH.AH.N
 	fi
 fi
 
